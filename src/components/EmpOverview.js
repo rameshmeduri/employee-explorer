@@ -1,35 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
 import { getUrl } from '../utils';
 
 const EmpOverview = () => {
   const [subordinateArr, setSubordinateArr] = useState(null);
+  const isMountedRef = useRef(false);
   const { data } = useLocation();
   const { empName, directSubordinates } = data;
 
-  const promiseArr = directSubordinates.map((name) => {
-    let url = getUrl(name);
-    let promise = axios.get(url);
-    return promise;
-  });
-
-  let tempArr = directSubordinates;
-
-  axios
-    .all(promiseArr)
-    .then(
-      axios.spread((...resArr) => {
-        resArr.forEach((obj) => {
-          let arr = obj.data[1]['direct-subordinates'];
-          tempArr = tempArr.concat(arr);
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      const promiseArr = directSubordinates.map((name) => {
+        let url = getUrl(name);
+        let promise = axios.get(url);
+        return promise;
+      });
+      let tempArr = directSubordinates;
+      axios
+        .all(promiseArr)
+        .then(
+          axios.spread((...resArr) => {
+            resArr.forEach((obj) => {
+              let arr = obj.data[1]['direct-subordinates'];
+              tempArr = tempArr.concat(arr);
+            });
+            isMountedRef.current = true;
+            setSubordinateArr(tempArr);
+          })
+        )
+        .catch((errors) => {
+          console.error(errors);
         });
-        setSubordinateArr(tempArr);
-      })
-    )
-    .catch((errors) => {
-      console.error(errors);
-    });
+    }
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [isMountedRef, directSubordinates]);
 
   return (
     <div className="mt-5">
