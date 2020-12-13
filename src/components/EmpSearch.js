@@ -1,32 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import EmpDetails from './EmpDetails';
 import { getUrl } from '../utils';
-
-const EmpDetails = ({ data }) => {
-  const { empName, title, directSubordinates } = data;
-  const pathname = `/overview/${empName}`;
-  return (
-    <table className="mt-5 table table-sm table-striped table-bordered table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Employee Name</th>
-          <th scope="col">Title</th>
-          <th scope="col">Direct Subordinates</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <Link to={{ pathname, data }}>{empName}</Link>
-          </td>
-          <td>{title}</td>
-          <td>{directSubordinates.length}</td>
-        </tr>
-      </tbody>
-    </table>
-  );
-};
 
 const EmpSearch = () => {
   const [empName, setEmpName] = useState('');
@@ -63,7 +38,7 @@ const EmpSearch = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="search employee"
+            placeholder="employee name"
             onChange={onChange}
             value={empName}
           />

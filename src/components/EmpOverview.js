@@ -34,14 +34,23 @@ const EmpOverview = () => {
   return (
     <div className="mt-5">
       <div className="row align-items-start">
-        <div className="col-1"><Link to="/">Back</Link></div>
-        <div className="col-11"><h2 className="text-center">Employee Overview</h2></div>
+        <div className="col-1">
+          <Link to="/">Back</Link>
+        </div>
+        <div className="col-11">
+          <h2 className="text-center">Employee Overview</h2>
+        </div>
       </div>
-      <h3 className="mt-5">Subordinates of employee <span class="badge badge-secondary">{empName}</span> : </h3>
+      <h3 className="mt-5">
+        Subordinates of employee{' '}
+        <span className="badge badge-secondary">{empName}</span> :{' '}
+      </h3>
       {subordinateArr && subordinateArr.length ? (
         <ul className="list-group mt-5 mb-5">
           {subordinateArr.map((item, index) => (
-            <li key={index} className="list-group-item">{item}</li>
+            <li key={index} className="list-group-item">
+              {item}
+            </li>
           ))}
         </ul>
       ) : null}
