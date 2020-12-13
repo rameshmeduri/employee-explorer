@@ -1,43 +1,60 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Link, useLocation } from 'react-router-dom';
-import { getUrl } from '../utils';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { getUrl, getPromiseArr } from '../utils';
 
 const EmpOverview = () => {
-  const [subordinateArr, setSubordinateArr] = useState(null);
+  const { empObj } = useLocation();
+  const { empName } = useParams();
   const isMountedRef = useRef(false);
-  const { data } = useLocation();
-  const { empName, directSubordinates } = data;
+  const [list, setList] = useState(null);
+
+  const getIndirect = (promiseArr, directSubordinates) => {
+    let tempArr = directSubordinates;
+    axios
+      .all(promiseArr)
+      .then(
+        axios.spread((...resArr) => {
+          resArr.forEach((obj) => {
+            let arr = obj.data[1]['direct-subordinates'];
+            tempArr = tempArr.concat(arr);
+          });
+          isMountedRef.current = true; // re rendering stops here
+          setList(tempArr);
+        })
+      )
+      .catch((errors) => {
+        console.log(errors);
+      });
+  };
+
+  const getDirect = () => {
+    const url = getUrl(empName);
+    axios
+      .get(url)
+      .then((res) => {
+        const directSubordinates = res.data[1]['direct-subordinates'];
+        const promiseArr = getPromiseArr(directSubordinates);
+        getIndirect(promiseArr, directSubordinates);
+      })
+      .catch((err) => console.log(err));
+  };
 
   useEffect(() => {
-    if (!isMountedRef.current) {
-      const promiseArr = directSubordinates.map((name) => {
-        let url = getUrl(name);
-        let promise = axios.get(url);
-        return promise;
-      });
-      let tempArr = directSubordinates;
-      axios
-        .all(promiseArr)
-        .then(
-          axios.spread((...resArr) => {
-            resArr.forEach((obj) => {
-              let arr = obj.data[1]['direct-subordinates'];
-              tempArr = tempArr.concat(arr);
-            });
-            isMountedRef.current = true;
-            setSubordinateArr(tempArr);
-          })
-        )
-        .catch((errors) => {
-          console.error(errors);
-        });
+    if (isMountedRef.current === false) {
+      if (empObj && empObj.directSubordinates) {
+        const { directSubordinates } = empObj;
+        const promiseArr = getPromiseArr(directSubordinates);
+        getIndirect(promiseArr, directSubordinates);
+      } else {
+        getDirect();
+      }
     }
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [isMountedRef, directSubordinates]);
+  }, [empObj, empName, isMountedRef]);
 
   return (
     <div className="mt-5">
@@ -53,9 +70,9 @@ const EmpOverview = () => {
         Subordinates of employee{' '}
         <span className="badge badge-secondary">{empName}</span> :{' '}
       </h3>
-      {subordinateArr && subordinateArr.length ? (
+      {list && list.length ? (
         <ul className="list-group mt-5 mb-5">
-          {subordinateArr.map((item, index) => (
+          {list.map((item, index) => (
             <li key={index} className="list-group-item">
               {item}
             </li>

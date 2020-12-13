@@ -50,7 +50,7 @@ const EmpSearch = () => {
 
       {error ? <h1>Sever Error</h1> : null}
 
-      {empObj ? <EmpDetails data={empObj} /> : null}
+      {empObj ? <EmpDetails empObj={empObj} /> : null}
     </div>
   );
 };

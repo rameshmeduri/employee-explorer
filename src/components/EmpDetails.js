@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
-const EmpDetails = ({ data }) => {
-  const { empName, title, directSubordinates } = data;
+const EmpDetails = ({ empObj }) => {
+  const { empName, title, directSubordinates } = empObj;
   const pathname = `/overview/${empName}`;
   return (
     <table className="mt-5 table table-sm table-striped table-bordered table-hover">
@@ -15,7 +15,7 @@ const EmpDetails = ({ data }) => {
       <tbody>
         <tr>
           <td>
-            <Link to={{ pathname, data }}>{empName}</Link>
+            <Link to={{ pathname, empObj }}>{empName}</Link>
           </td>
           <td>{title}</td>
           <td>{directSubordinates.length}</td>
